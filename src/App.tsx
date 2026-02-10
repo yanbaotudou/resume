@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { resumeData } from './data/resume';
+import profilePhoto from '../证件照.png';
+import resumePdf from '../胡力文简历.pdf';
 
 const copyFallback = (value: string) => {
   const textArea = document.createElement('textarea');
@@ -25,6 +27,7 @@ type ThemeMode = 'light' | 'dark';
 function App() {
   const [selectedSkill, setSelectedSkill] = useState<string | null>(null);
   const [expandedProjects, setExpandedProjects] = useState<Record<string, boolean>>({});
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [theme, setTheme] = useState<ThemeMode>(() =>
     document.documentElement.classList.contains('dark') ? 'dark' : 'light'
   );
@@ -135,6 +138,14 @@ function App() {
           </div>
 
           <aside className="animate-fade-up surface flex flex-col gap-3 border-dashed p-5" style={{ animationDelay: '160ms' }}>
+            <div className="flex items-center justify-center rounded-xl border border-slate-200/90 bg-slate-50/90 p-4 dark:border-slate-700 dark:bg-slate-800/85">
+              <img
+                src={profilePhoto}
+                alt="胡力文证件照"
+                className="h-28 w-28 rounded-full border-4 border-white object-cover shadow-soft dark:border-slate-700 sm:h-32 sm:w-32"
+                loading="lazy"
+              />
+            </div>
             <h2 className="text-sm font-semibold uppercase tracking-[0.12em] text-slate-500 dark:text-slate-300">
               联系方式
             </h2>
@@ -233,6 +244,9 @@ function App() {
           <div className="mt-5 grid gap-4">
             {visibleProjects.map((project, index) => {
               const expanded = Boolean(expandedProjects[project.id]);
+              const detailedPoints = expanded
+                ? project.detailedIntro
+                : project.detailedIntro.slice(0, Math.min(3, project.detailedIntro.length));
               const points = expanded
                 ? project.architecturePoints
                 : project.architecturePoints.slice(0, Math.min(2, project.architecturePoints.length));
@@ -257,6 +271,22 @@ function App() {
                   {project.outcome && (
                     <p className="mt-2 text-sm font-medium text-slate-600 dark:text-slate-300">{project.outcome}</p>
                   )}
+
+                  <div className="mt-4" id={`project-detail-${project.id}`}>
+                    <h4 className="text-xs font-semibold uppercase tracking-[0.1em] text-slate-500 dark:text-slate-300">
+                      详细介绍
+                    </h4>
+                    <ul className="mt-2 space-y-2 text-sm leading-relaxed text-slate-700 dark:text-slate-200">
+                      {detailedPoints.map((point) => (
+                        <li
+                          key={point}
+                          className="rounded-lg border border-slate-200/80 bg-slate-50/90 px-3 py-2 dark:border-slate-700 dark:bg-slate-800/80"
+                        >
+                          {point}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
 
                   <div className="mt-4">
                     <h4 className="text-xs font-semibold uppercase tracking-[0.1em] text-slate-500 dark:text-slate-300">
@@ -287,20 +317,24 @@ function App() {
                     </h4>
                     <ul className="mt-2 space-y-2 text-sm leading-relaxed text-slate-700 dark:text-slate-200">
                       {points.map((point) => (
-                        <li key={point} className="rounded-lg border border-slate-200/80 bg-slate-50/90 px-3 py-2 dark:border-slate-700 dark:bg-slate-800/80">
+                        <li
+                          key={point}
+                          className="rounded-lg border border-slate-200/80 bg-slate-50/90 px-3 py-2 dark:border-slate-700 dark:bg-slate-800/80"
+                        >
                           {point}
                         </li>
                       ))}
                     </ul>
-                    {project.architecturePoints.length > 2 && (
+                    {(project.detailedIntro.length > 3 || project.architecturePoints.length > 2) && (
                       <button
                         type="button"
                         className="btn-main mt-3"
                         onClick={() => toggleProjectDetail(project.id)}
                         aria-expanded={expanded}
-                        aria-label={expanded ? '收起项目更多细节' : '展开项目更多细节'}
+                        aria-controls={`project-detail-${project.id}`}
+                        aria-label={expanded ? '收起详细介绍' : '展开详细介绍'}
                       >
-                        {expanded ? '收起细节' : '更多细节'}
+                        {expanded ? '收起详细介绍' : '展开详细介绍'}
                       </button>
                     )}
                   </div>
@@ -364,13 +398,63 @@ function App() {
         </section>
       </main>
 
+      <section
+        id="resume-preview-section"
+        className={`relative z-10 mx-auto mb-6 max-w-6xl px-4 sm:px-6 lg:px-8 ${isPreviewOpen ? '' : 'hidden'}`}
+        aria-label="简历PDF在线预览区域"
+      >
+        <div className="surface p-6 md:p-8">
+          <h2 className="text-xl font-bold sm:text-2xl">简历在线预览</h2>
+          <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
+            若当前浏览器无法内嵌显示 PDF，可使用下方提示的新标签打开或下载方式。
+          </p>
+          <iframe
+            className="resume-preview-frame mt-4 h-[60vh] w-full md:h-[72vh]"
+            src={resumePdf}
+            title="胡力文简历PDF在线预览"
+            loading="lazy"
+          >
+            <p className="px-4 py-3 text-sm text-slate-600 dark:text-slate-300">
+              当前浏览器不支持内嵌预览，可
+              <a
+                href={resumePdf}
+                target="_blank"
+                rel="noreferrer"
+                className="mx-1 font-semibold text-sky-600 underline dark:text-sky-300"
+              >
+                新标签打开
+              </a>
+              或
+              <a
+                href={resumePdf}
+                download="胡力文简历.pdf"
+                className="mx-1 font-semibold text-sky-600 underline dark:text-sky-300"
+              >
+                下载 PDF
+              </a>
+              。
+            </p>
+          </iframe>
+        </div>
+      </section>
+
       <footer className="relative z-10 mx-auto mb-8 flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
         <p className="text-sm text-slate-500 dark:text-slate-400">
           © {new Date().getFullYear()} 胡力文 · 单页个人简历
         </p>
         <div className="flex flex-wrap gap-2">
-          <button type="button" className="btn-main cursor-not-allowed opacity-70" disabled aria-label="下载PDF（占位）">
-            下载PDF（占位）
+          <a href={resumePdf} download="胡力文简历.pdf" className="btn-main" aria-label="下载简历PDF">
+            下载PDF
+          </a>
+          <button
+            type="button"
+            className="btn-main"
+            onClick={() => setIsPreviewOpen((current) => !current)}
+            aria-expanded={isPreviewOpen}
+            aria-controls="resume-preview-section"
+            aria-label={isPreviewOpen ? '收起简历在线预览' : '展开简历在线预览'}
+          >
+            {isPreviewOpen ? '收起预览' : '在线预览'}
           </button>
           <button
             type="button"

@@ -16,6 +16,7 @@ export interface Project {
   period: string;
   background: string;
   outcome?: string;
+  detailedIntro: string[];
   techStack: string[];
   architecturePoints: string[];
   metrics?: string[];
