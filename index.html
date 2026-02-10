@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>胡力文 | 嵌入式 Linux / C++ 实习生简历</title>
+    <meta
+      name="description"
+      content="胡力文的单页个人简历网站：嵌入式 Linux 软件开发、C++ 软件开发方向，展示项目经历、技能栈、教育背景与荣誉。"
+    />
+    <meta
+      name="keywords"
+      content="胡力文,嵌入式Linux,C++,YOLO,RKNN,OpenCV,边缘计算,简历"
+    />
+    <meta name="author" content="胡力文" />
+    <script>
+      (() => {
+        const storageTheme = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (storageTheme === 'dark' || (!storageTheme && prefersDark)) {
+          document.documentElement.classList.add('dark');
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
